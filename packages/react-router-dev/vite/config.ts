@@ -11,6 +11,7 @@ import type * as ViteNode from "./vite-node";
 import {
   type RouteManifest,
   type RouteManifestEntry,
+  type RouteConfigEntry,
   type RouteConfig,
   setAppDirectory,
   validateRouteConfig,
@@ -35,6 +36,7 @@ export type Preset = {
   reactRouterConfigResolved?: (args: {
     reactRouterConfig: ResolvedReactRouterConfig;
   }) => void | Promise<void>;
+  defineRoutes?: () => RouteConfigEntry[];
 };
 
 // Only expose a subset of route properties to the "serverBundles" function
@@ -497,6 +499,8 @@ export async function resolveReactRouterConfig({
 
   let future: FutureConfig = {};
 
+  let reactRouterConfigRoutes = routes
+  
   let reactRouterConfig: ResolvedReactRouterConfig = deepFreeze({
     appDirectory,
     basename,
@@ -504,7 +508,7 @@ export async function resolveReactRouterConfig({
     buildEnd,
     future,
     prerender,
-    routes,
+    routes: reactRouterConfigRoutes,
     serverBuildFile,
     serverBundles,
     serverModuleFormat,
@@ -513,6 +517,17 @@ export async function resolveReactRouterConfig({
 
   for (let preset of reactRouterUserConfig.presets ?? []) {
     await preset.reactRouterConfigResolved?.({ reactRouterConfig });
+
+    const userDefinedRoutes = preset.defineRoutes?.();
+
+    if (userDefinedRoutes) {
+      const userRoureManifest = configRoutesToRouteManifest(userDefinedRoutes)
+
+      reactRouterConfigRoutes = {
+        ...reactRouterConfigRoutes,
+        ...userRoureManifest
+      }
+    }
   }
 
   isFirstLoad = false;
