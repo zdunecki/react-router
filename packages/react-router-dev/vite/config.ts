@@ -499,8 +499,23 @@ export async function resolveReactRouterConfig({
 
   let future: FutureConfig = {};
 
-  let reactRouterConfigRoutes = routes
-  
+  for (let preset of reactRouterUserConfig.presets ?? []) {
+    const userDefinedRoutes = preset.defineRoutes?.();
+    if (!userDefinedRoutes) {
+      continue
+    }
+
+    const userRoureManifest = configRoutesToRouteManifest(userDefinedRoutes)
+    if (!userRoureManifest) {
+      continue
+    }
+
+    routes = {
+      ...routes,
+      ...userRoureManifest
+    }
+  }
+
   let reactRouterConfig: ResolvedReactRouterConfig = deepFreeze({
     appDirectory,
     basename,
@@ -508,31 +523,20 @@ export async function resolveReactRouterConfig({
     buildEnd,
     future,
     prerender,
-    routes: reactRouterConfigRoutes,
+    routes,
     serverBuildFile,
     serverBundles,
     serverModuleFormat,
     ssr,
-  });
+  })
 
   for (let preset of reactRouterUserConfig.presets ?? []) {
     await preset.reactRouterConfigResolved?.({ reactRouterConfig });
-
-    const userDefinedRoutes = preset.defineRoutes?.();
-
-    if (userDefinedRoutes) {
-      const userRoureManifest = configRoutesToRouteManifest(userDefinedRoutes)
-
-      reactRouterConfigRoutes = {
-        ...reactRouterConfigRoutes,
-        ...userRoureManifest
-      }
-    }
   }
 
   isFirstLoad = false;
 
-  return reactRouterConfig;
+  return reactRouterConfig
 }
 
 export async function resolveEntryFiles({
