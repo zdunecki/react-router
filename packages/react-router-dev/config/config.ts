@@ -17,11 +17,10 @@ import isEqual from "lodash/isEqual";
 import {
   type RouteManifest,
   type RouteManifestEntry,
-  type RouteConfigEntry,
   type RouteConfig,
   setAppDirectory,
   validateRouteConfig,
-  configRoutesToRouteManifest,
+  configRoutesToRouteManifest, RouteConfigEntry
 } from "./routes";
 import { detectPackageManager } from "../cli/detectPackageManager";
 
@@ -117,7 +116,7 @@ export type ReactRouterConfig = {
    */
   future?: [keyof FutureConfig] extends [never]
     ? // Partial<FutureConfig> doesn't work when it's empty so just prevent any keys
-      { [key: string]: never }
+    { [key: string]: never }
     : Partial<FutureConfig>;
 
   /**
@@ -141,8 +140,8 @@ export type ReactRouterConfig = {
     | boolean
     | Array<string>
     | ((args: {
-        getStaticPaths: () => string[];
-      }) => Array<string> | Promise<Array<string>>);
+    getStaticPaths: () => string[];
+  }) => Array<string> | Promise<Array<string>>);
   /**
    * An array of React Router plugin config presets to ease integration with
    * other platforms and tools.
@@ -239,26 +238,26 @@ let mergeReactRouterConfig = (
       ...configB,
       ...(mergeRequired("buildEnd")
         ? {
-            buildEnd: async (...args) => {
-              await Promise.all([
-                configA.buildEnd?.(...args),
-                configB.buildEnd?.(...args),
-              ]);
-            },
-          }
+          buildEnd: async (...args) => {
+            await Promise.all([
+              configA.buildEnd?.(...args),
+              configB.buildEnd?.(...args),
+            ]);
+          },
+        }
         : {}),
       ...(mergeRequired("future")
         ? {
-            future: {
-              ...configA.future,
-              ...configB.future,
-            },
-          }
+          future: {
+            ...configA.future,
+            ...configB.future,
+          },
+        }
         : {}),
       ...(mergeRequired("presets")
         ? {
-            presets: [...(configA.presets ?? []), ...(configB.presets ?? [])],
-          }
+          presets: [...(configA.presets ?? []), ...(configB.presets ?? [])],
+        }
         : {}),
     };
   };
@@ -289,15 +288,15 @@ let deepFreeze = (o: any) => {
 
 type Result<T> =
   | {
-      ok: true;
-      value: T;
-      error?: undefined;
-    }
+  ok: true;
+  value: T;
+  error?: undefined;
+}
   | {
-      ok: false;
-      value?: undefined;
-      error: string;
-    };
+  ok: false;
+  value?: undefined;
+  error: string;
+};
 
 function ok<T>(value: T): Result<T> {
   return { ok: true, value };
@@ -308,10 +307,10 @@ function err<T>(error: string): Result<T> {
 }
 
 async function resolveConfig({
-  root,
-  viteNodeContext,
-  reactRouterConfigFile,
-}: {
+                               root,
+                               viteNodeContext,
+                               reactRouterConfigFile,
+                             }: {
   root: string;
   viteNodeContext: ViteNode.Context;
   reactRouterConfigFile?: string;
@@ -406,7 +405,7 @@ async function resolveConfig({
   if (!isValidPrerenderConfig) {
     return err(
       "The `prerender` config must be a boolean, an array of string paths, " +
-        "or a function returning a boolean or array of string paths"
+      "or a function returning a boolean or array of string paths"
     );
   }
 
@@ -467,13 +466,13 @@ async function resolveConfig({
         "",
         error.loc?.file && error.loc?.column && error.frame
           ? [
-              path.relative(appDirectory, error.loc.file) +
-                ":" +
-                error.loc.line +
-                ":" +
-                error.loc.column,
-              error.frame.trim?.(),
-            ]
+            path.relative(appDirectory, error.loc.file) +
+            ":" +
+            error.loc.line +
+            ":" +
+            error.loc.column,
+            error.frame.trim?.(),
+          ]
           : error.stack,
       ]
         .flat()
@@ -492,14 +491,14 @@ async function resolveConfig({
       continue
     }
 
-    const userRoureManifest = configRoutesToRouteManifest(userDefinedRoutes)
-    if (!userRoureManifest) {
+    const userRouteManifest = configRoutesToRouteManifest(appDirectory, userDefinedRoutes)
+    if (!userRouteManifest) {
       continue
     }
 
     routes = {
       ...routes,
-      ...userRoureManifest
+      ...userRouteManifest
     }
   }
 
@@ -515,7 +514,7 @@ async function resolveConfig({
     serverBundles,
     serverModuleFormat,
     ssr,
-  })
+  });
 
   for (let preset of reactRouterUserConfig.presets ?? []) {
     await preset.reactRouterConfigResolved?.({ reactRouterConfig });
@@ -526,9 +525,6 @@ async function resolveConfig({
 
 type ChokidarEventName = ChokidarEmitArgs[0];
 
-<<<<<<< HEAD:packages/react-router-dev/vite/config.ts
-  return reactRouterConfig
-=======
 type ChangeHandler = (args: {
   result: Result<ResolvedReactRouterConfig>;
   configCodeUpdated: boolean;
@@ -545,9 +541,9 @@ export type ConfigLoader = {
 };
 
 export async function createConfigLoader({
-  rootDirectory: root,
-  watch,
-}: {
+                                           rootDirectory: root,
+                                           watch,
+                                         }: {
   watch: boolean;
   rootDirectory?: string;
 }): Promise<ConfigLoader> {
@@ -670,13 +666,12 @@ export async function loadConfig({ rootDirectory }: { rootDirectory: string }) {
   let config = await configLoader.getConfig();
   await configLoader.close();
   return config;
->>>>>>> main:packages/react-router-dev/config/config.ts
 }
 
 export async function resolveEntryFiles({
-  rootDirectory,
-  reactRouterConfig,
-}: {
+                                          rootDirectory,
+                                          reactRouterConfig,
+                                        }: {
   rootDirectory: string;
   reactRouterConfig: ResolvedReactRouterConfig;
 }) {
@@ -745,18 +740,18 @@ export async function resolveEntryFiles({
 
 export const ssrExternals = isInReactRouterMonorepo()
   ? [
-      // This is only needed within this repo because these packages
-      // are linked to a directory outside of node_modules so Vite
-      // treats them as internal code by default.
-      "react-router",
-      "react-router-dom",
-      "@react-router/architect",
-      "@react-router/cloudflare",
-      "@react-router/dev",
-      "@react-router/express",
-      "@react-router/node",
-      "@react-router/serve",
-    ]
+    // This is only needed within this repo because these packages
+    // are linked to a directory outside of node_modules so Vite
+    // treats them as internal code by default.
+    "react-router",
+    "react-router-dom",
+    "@react-router/architect",
+    "@react-router/cloudflare",
+    "@react-router/dev",
+    "@react-router/express",
+    "@react-router/node",
+    "@react-router/serve",
+  ]
   : undefined;
 
 function isInReactRouterMonorepo() {
