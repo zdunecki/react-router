@@ -42,6 +42,7 @@ import {
   createConfigLoader,
   resolveEntryFiles,
   ssrExternals,
+  ReactRouterConfig,
 } from "../config/config";
 import * as WithProps from "./with-props";
 
@@ -396,11 +397,13 @@ export let setReactRouterDevLoadContext = (
   reactRouterDevLoadContext = loadContext;
 };
 
-type ReactRouterVitePlugin = () => Vite.Plugin[];
+type ReactRouterVitePlugin = (config?: ReactRouterConfig) => Vite.Plugin[];
 /**
  * React Router [Vite plugin.](https://vitejs.dev/guide/using-plugins.html)
  */
-export const reactRouterVitePlugin: ReactRouterVitePlugin = () => {
+export const reactRouterVitePlugin: ReactRouterVitePlugin = (_config) => {
+  let reactRouterViteConfig = _config ?? {};
+
   let rootDirectory: string;
   let viteCommand: Vite.ResolvedConfig["command"];
   let viteUserConfig: Vite.UserConfig;
@@ -758,6 +761,7 @@ export const reactRouterVitePlugin: ReactRouterVitePlugin = () => {
         reactRouterConfigLoader = await createConfigLoader({
           rootDirectory,
           watch: viteCommand === "serve",
+          reactRouterViteConfig,
         });
 
         await updatePluginContext();
