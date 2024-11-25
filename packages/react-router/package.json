@@ -1,6 +1,6 @@
 {
   "name": "react-router",
-  "version": "6.26.2",
+  "version": "7.0.1",
   "description": "Declarative routing for React",
   "keywords": [
     "react",
@@ -44,7 +44,12 @@
       }
     },
     "./route-module": {
-      "types": "./dist/production/lib/types/route-module.d.ts"
+      "import": {
+        "types": "./dist/production/lib/types/route-module.d.mts"
+      },
+      "default": {
+        "types": "./dist/production/lib/types/route-module.d.ts"
+      }
     },
     "./dom": {
       "node": {

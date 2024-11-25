@@ -17,9 +17,9 @@ route("/reports/pdf/:id", "pdf-report.ts");
 ```
 
 ```tsx filename=pdf-report.ts
-import * as Route from "./+types.pdf-report";
+import type { Route } from "./+types/pdf-report";
 
-export async function loader({ params }: Route.LoaderArg) {
+export async function loader({ params }: Route.LoaderArgs) {
   const report = await getReport(params.id);
   const pdf = await generateReportPDF(report);
   return new Response(pdf, {
@@ -48,14 +48,14 @@ When linking to resource routes, use `<a>` or `<Link reloadDocument>`, otherwise
 GET requests are handled by the `loader`, while POST, PUT, PATCH, and DELETE are handled by the `action`:
 
 ```tsx
-import type { Route } from "./+types.resource";
+import type { Route } from "./+types/resource";
 
 export function loader(_: Route.LoaderArgs) {
-  return new Response.json({ message: "I handle GET" });
+  return Response.json({ message: "I handle GET" });
 }
 
 export function action(_: Route.LoaderArgs) {
-  return new Response.json({
+  return Response.json({
     message: "I handle everything else",
   });
 }

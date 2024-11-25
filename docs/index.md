@@ -37,7 +37,7 @@ ReactDOM.createRoot(root).render(
 );
 ```
 
-[Get Started](./library/installation) with React Router as a library.
+[Get Started](./start/library/installation) with React Router as a library.
 
 ## React Router as a framework
 
@@ -66,7 +66,7 @@ import {
   prefix,
 } from "@react-router/dev/routes";
 
-export const routes: RouteConfig = [
+export default [
   index("./home.tsx"),
   route("about", "./about.tsx"),
 
@@ -81,7 +81,7 @@ export const routes: RouteConfig = [
     route(":city/:id", "./concerts/show.tsx")
     route("trending", "./concerts/trending.tsx"),
   ]),
-];
+] satisfies RouteConfig;
 ```
 
 You'll have access to the Route Module API, which most of the other features are built on.
@@ -141,4 +141,4 @@ export async function action({
 
 Route modules also provide conventions for SEO, asset loading, error boundaries, and more.
 
-[Get Started](./framework/start/installation) with React Router as a framework.
+[Get Started](./start/framework/installation) with React Router as a framework.

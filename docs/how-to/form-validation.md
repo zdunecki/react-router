@@ -4,20 +4,25 @@ title: Form Validation
 
 # Form Validation
 
-This guide walks you through implementing form validation for a simple signup form. Here, we focus on capturing the fundamentals to help you understand the essential elements of form validation in Remix, including actions, action data, and rendering errors.
+This guide walks through a simple signup form implementation. You will likely want to pair these concepts with third-party validation libraries and error components, but this guide only focuses on the moving pieces for React Router.
 
 ## 1. Setting Up
 
 We'll start by creating a basic signup route with form.
 
-```ts filename=routes.ts
-import { route } from "@react-router/dev/routes";
+```ts filename=app/routes.ts
+import {
+  type RouteConfig,
+  route,
+} from "@react-router/dev/routes";
 
-export const routes = [route("signup", "signup.tsx")];
+export default [
+  route("signup", "signup.tsx"),
+] satisfies RouteConfig;
 ```
 
 ```tsx filename=signup.tsx
-import type { Route } from "./+types.signup";
+import type { Route } from "./+types/signup";
 import { useFetcher } from "react-router";
 
 export default function Signup(_: Route.ComponentProps) {
@@ -43,7 +48,7 @@ export default function Signup(_: Route.ComponentProps) {
 In this step, we'll define a server `action` in the same file as our `Signup` component. Note that the aim here is to provide a broad overview of the mechanics involved rather than digging deep into form validation rules or error object structures. We'll use rudimentary checks for the email and password to demonstrate the core concepts.
 
 ```tsx filename=signup.tsx
-import type { Route } from "./+types.signup";
+import type { Route } from "./+types/signup";
 import { redirect, useFetcher, data } from "react-router";
 
 export default function Signup(_: Route.ComponentProps) {
@@ -108,7 +113,3 @@ export default function Signup(_: Route.ComponentProps) {
   );
 }
 ```
-
-## Conclusion
-
-And there you have it! You've successfully set up a basic form validation flow in Remix. The beauty of this approach is that the errors will automatically display based on the `action` data, and they will be updated each time the user re-submits the form. This reduces the amount of boilerplate code you have to write, making your development process more efficient.
