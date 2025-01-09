@@ -17,12 +17,12 @@ import isEqual from "lodash/isEqual";
 import {
   type RouteManifest,
   type RouteManifestEntry,
-  type RouteConfig,
   setAppDirectory,
   validateRouteConfig,
   configRoutesToRouteManifest,
 } from "./routes";
 import { detectPackageManager } from "../cli/detectPackageManager";
+import type { ReactRouterVitePluginOptions } from "../vite/plugin";
 
 const excludedConfigPresetKeys = ["presets"] as const satisfies ReadonlyArray<
   keyof ReactRouterConfig
@@ -309,10 +309,12 @@ async function resolveConfig({
   root,
   viteNodeContext,
   reactRouterConfigFile,
+  viteOptions
 }: {
   root: string;
   viteNodeContext: ViteNode.Context;
   reactRouterConfigFile?: string;
+  viteOptions?: ReactRouterVitePluginOptions
 }): Promise<Result<ResolvedReactRouterConfig>> {
   let reactRouterUserConfig: ReactRouterConfig = {};
 
@@ -370,7 +372,7 @@ async function resolveConfig({
 
   let defaults = {
     basename: "/",
-    buildDirectory: "build",
+    buildDirectory: viteOptions?.outDir ?? "build",
     serverBuildFile: "index.js",
     serverModuleFormat: "esm",
     ssr: true,
@@ -457,6 +459,7 @@ async function resolveConfig({
     routes = {
       ...routes,
       ...configRoutesToRouteManifest(appDirectory, routeConfig),
+      ...configRoutesToRouteManifest(appDirectory, viteOptions?.routes || []),
     };
   } catch (error: any) {
     return err(
@@ -525,9 +528,11 @@ export type ConfigLoader = {
 export async function createConfigLoader({
   rootDirectory: root,
   watch,
+  viteOptions
 }: {
   watch: boolean;
   rootDirectory?: string;
+  viteOptions?: ReactRouterVitePluginOptions
 }): Promise<ConfigLoader> {
   root = root ?? process.env.REACT_ROUTER_ROOT ?? process.cwd();
 
@@ -545,7 +550,7 @@ export async function createConfigLoader({
   });
 
   let getConfig = () =>
-    resolveConfig({ root, viteNodeContext, reactRouterConfigFile });
+    resolveConfig({ root, viteNodeContext, reactRouterConfigFile, viteOptions });
 
   let appDirectory: string;
 

@@ -24,7 +24,7 @@ import jsesc from "jsesc";
 import colors from "picocolors";
 
 import * as Typegen from "../typegen";
-import { type RouteManifestEntry, type RouteManifest } from "../config/routes";
+import { type RouteManifestEntry, type RouteManifest, type RouteConfigEntry } from "../config/routes";
 import type { Manifest as ReactRouterManifest } from "../manifest";
 import invariant from "../invariant";
 import { generate, parse } from "./babel";
@@ -394,11 +394,17 @@ export let setReactRouterDevLoadContext = (
   reactRouterDevLoadContext = loadContext;
 };
 
-type ReactRouterVitePlugin = () => Vite.Plugin[];
+export interface ReactRouterVitePluginOptions {
+  outDir?: string
+
+  routes?: RouteConfigEntry[]
+}
+
+type ReactRouterVitePlugin = (options?: ReactRouterVitePluginOptions) => Vite.Plugin[];
 /**
  * React Router [Vite plugin.](https://vitejs.dev/guide/using-plugins.html)
  */
-export const reactRouterVitePlugin: ReactRouterVitePlugin = () => {
+export const reactRouterVitePlugin: ReactRouterVitePlugin = (options?: ReactRouterVitePluginOptions) => {
   let rootDirectory: string;
   let viteCommand: Vite.ResolvedConfig["command"];
   let viteUserConfig: Vite.UserConfig;
@@ -755,6 +761,7 @@ export const reactRouterVitePlugin: ReactRouterVitePlugin = () => {
         reactRouterConfigLoader = await createConfigLoader({
           rootDirectory,
           watch: viteCommand === "serve",
+          viteOptions: options,
         });
 
         await updatePluginContext();
